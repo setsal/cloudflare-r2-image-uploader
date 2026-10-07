@@ -1,4 +1,5 @@
-import { ipcMain, clipboard, dialog, BrowserWindow } from 'electron'
+import { ipcMain, clipboard, dialog, BrowserWindow, shell } from 'electron'
+import { existsSync } from 'fs'
 import { uploadFile, testConnection } from './r2-client'
 import { processImage } from './image-processor'
 import {
@@ -87,7 +88,11 @@ export function registerIpcHandlers() {
   // ---- Upload ----
   ipcMain.handle(
     'upload:file',
-    async (_event, fileData: { buffer: ArrayBuffer; name: string; size: number }, options: { targetPath: string; autoRename: 'off' | 'timestamp' | 'random' }) => {
+    async (
+      _event,
+      fileData: { buffer: ArrayBuffer; name: string; size: number; originalPath?: string },
+      options: { targetPath: string; autoRename: 'off' | 'timestamp' | 'random' }
+    ) => {
       const profile = getActiveProfile()
       if (!profile) {
         return {
@@ -129,12 +134,13 @@ export function registerIpcHandlers() {
           clipboard.writeText(clipboardText)
         }
 
-        // Add to history
+        // Add to history (including original local path if available, or undefined if from clipboard)
         const historyItem: UploadHistoryItem = {
           url: result.url,
           key: result.key || '',
           fileName: result.fileName || '',
           originalName: fileData.name,
+          originalPath: fileData.originalPath || undefined,
           fileSize: fileData.size,
           timestamp: result.timestamp,
           profile: config.activeProfile
@@ -142,9 +148,27 @@ export function registerIpcHandlers() {
         addHistoryItem(historyItem)
       }
 
-      return result
+      return {
+        ...result,
+        originalName: fileData.name,
+        originalPath: fileData.originalPath
+      }
     }
   )
+
+  // ---- Shell ----
+  ipcMain.handle('shell:show-item-in-folder', (_event, fullPath: string) => {
+    if (!fullPath) return { success: false, error: 'No path specified' }
+    try {
+      if (!existsSync(fullPath)) {
+        return { success: false, error: 'Original file no longer exists at this location' }
+      }
+      shell.showItemInFolder(fullPath)
+      return { success: true }
+    } catch (err) {
+      return { success: false, error: err instanceof Error ? err.message : 'Failed to locate file' }
+    }
+  })
 
   // ---- Connection test ----
   ipcMain.handle('r2:test-connection', async (_event, profile) => {

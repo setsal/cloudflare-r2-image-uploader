@@ -13,9 +13,13 @@ declare global {
       exportConfig: () => Promise<{ success: boolean; path?: string; error?: string }>
       importConfig: () => Promise<{ success: boolean; config?: AppConfig; error?: string }>
 
+      // Path resolution & shell
+      getPathForFile: (file: File) => string
+      showItemInFolder: (path: string) => Promise<{ success: boolean; error?: string }>
+
       // Upload
       uploadFile: (
-        fileData: { buffer: ArrayBuffer; name: string; size: number },
+        fileData: { buffer: ArrayBuffer; name: string; size: number; originalPath?: string },
         options: { targetPath: string; autoRename: string }
       ) => Promise<UploadResult>
 

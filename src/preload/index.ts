@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from 'electron'
+import { contextBridge, ipcRenderer, webUtils } from 'electron'
 
 const api = {
   // Config
@@ -12,9 +12,21 @@ const api = {
   exportConfig: () => ipcRenderer.invoke('config:export'),
   importConfig: () => ipcRenderer.invoke('config:import'),
 
+  // Path resolution
+  getPathForFile: (file: File) => {
+    try {
+      const p = webUtils.getPathForFile(file)
+      if (p) return p
+    } catch {
+      // fallback
+    }
+    return (file as unknown as { path?: string })?.path || ''
+  },
+  showItemInFolder: (path: string) => ipcRenderer.invoke('shell:show-item-in-folder', path),
+
   // Upload
   uploadFile: (
-    fileData: { buffer: ArrayBuffer; name: string; size: number },
+    fileData: { buffer: ArrayBuffer; name: string; size: number; originalPath?: string },
     options: { targetPath: string; autoRename: string }
   ) => ipcRenderer.invoke('upload:file', fileData, options),
 

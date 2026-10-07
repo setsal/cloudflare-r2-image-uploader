@@ -30,6 +30,7 @@ export interface ImageProcessingResult {
   savings: number // percentage saved (0-100)
   format: string
   fileName: string
+  originalPath?: string
 }
 
 export interface AppConfig {
@@ -57,6 +58,8 @@ export interface UploadResult {
   url?: string
   key?: string
   fileName?: string
+  originalName?: string
+  originalPath?: string
   fileSize?: number
   error?: string
   timestamp: number
@@ -67,6 +70,7 @@ export interface UploadHistoryItem {
   key: string
   fileName: string
   originalName: string
+  originalPath?: string
   fileSize: number
   timestamp: number
   profile: string
@@ -77,6 +81,7 @@ export interface FileData {
   name: string
   type: string
   size: number
+  originalPath?: string
 }
 
 export const DEFAULT_IMAGE_PROCESSING: ImageProcessingConfig = {

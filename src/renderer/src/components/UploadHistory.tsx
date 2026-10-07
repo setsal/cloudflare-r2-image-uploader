@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { UploadHistoryItem } from '@common/types'
 import { formatFileSize, formatTimestamp } from '../lib/utils'
 import { useToast } from './Toast'
-import { IconCopy, IconInbox } from './Icons'
+import { IconCopy, IconInbox, IconFolder } from './Icons'
 
 export function UploadHistory() {
   const [history, setHistory] = useState<UploadHistoryItem[]>([])
@@ -27,6 +27,22 @@ export function UploadHistory() {
   const handleCopy = async (url: string) => {
     await window.api.copyToClipboard(url)
     addToast('URL copied to clipboard!', 'success')
+  }
+
+  const handleCopyPath = async (path: string) => {
+    await window.api.copyToClipboard(path)
+    addToast('Original path copied to clipboard!', 'success')
+  }
+
+  const handleShowInFolder = async (path: string) => {
+    try {
+      const res = await window.api.showItemInFolder(path)
+      if (res && !res.success && res.error) {
+        addToast(res.error, 'error')
+      }
+    } catch {
+      addToast('Failed to locate file', 'error')
+    }
   }
 
   const handleClear = async () => {
@@ -63,9 +79,31 @@ export function UploadHistory() {
         history.map((item, index) => (
           <div key={index} className="history__item">
             <div className="history__item-info">
-              <div className="history__item-name" title={item.originalName}>
-                {item.fileName}
+              <div className="history__item-name">
+                <span title={item.fileName}>{item.fileName}</span>
+                {item.originalName && item.originalName !== item.fileName && (
+                  <span
+                    className="history__item-original-name"
+                    title={`Original file name: ${item.originalName}`}
+                  >
+                    ({item.originalName})
+                  </span>
+                )}
               </div>
+              {item.originalPath ? (
+                <div
+                  className="history__item-path"
+                  onClick={() => handleCopyPath(item.originalPath!)}
+                  title={`Original path: ${item.originalPath}\nClick to copy path`}
+                >
+                  <IconFolder size={12} />
+                  <span className="history__item-path-text">{item.originalPath}</span>
+                </div>
+              ) : (
+                <div className="history__item-path history__item-path--clipboard" title="Uploaded from clipboard">
+                  <span className="history__item-badge">Clipboard</span>
+                </div>
+              )}
               <div className="history__item-url" title={item.url}>
                 {item.url}
               </div>
@@ -75,6 +113,15 @@ export function UploadHistory() {
               <div>{formatTimestamp(item.timestamp)}</div>
             </div>
             <div className="history__item-actions">
+              {item.originalPath && (
+                <button
+                  className="btn btn--secondary btn--sm"
+                  onClick={() => handleShowInFolder(item.originalPath!)}
+                  title="Locate original file in folder"
+                >
+                  <IconFolder size={12} /> Locate
+                </button>
+              )}
               <button
                 className="btn btn--secondary btn--sm"
                 onClick={() => handleCopy(item.url)}

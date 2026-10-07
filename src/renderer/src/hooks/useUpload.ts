@@ -35,6 +35,7 @@ export function useUpload() {
       const results: ImageProcessingResult[] = []
 
       for (const file of files) {
+        const originalPath = window.api.getPathForFile(file) || undefined
         try {
           const buffer = await fileToArrayBuffer(file)
           const response = await window.api.processImage(
@@ -42,7 +43,10 @@ export function useUpload() {
             processingConfig
           )
           if (response.success && response.result) {
-            results.push(response.result)
+            results.push({
+              ...response.result,
+              originalPath
+            })
           } else {
             // If processing fails, pass the original through
             results.push({
@@ -55,7 +59,8 @@ export function useUpload() {
               originalHeight: 0,
               savings: 0,
               format: 'unknown',
-              fileName: file.name
+              fileName: file.name,
+              originalPath
             })
           }
         } catch {
@@ -71,7 +76,8 @@ export function useUpload() {
             originalHeight: 0,
             savings: 0,
             format: 'unknown',
-            fileName: file.name
+            fileName: file.name,
+            originalPath
           })
         }
       }
@@ -105,7 +111,8 @@ export function useUpload() {
             {
               buffer: processed.processedBuffer,
               name: processed.fileName,
-              size: processed.processedSize
+              size: processed.processedSize,
+              originalPath: processed.originalPath
             },
             options
           )
@@ -147,8 +154,9 @@ export function useUpload() {
       for (const file of files) {
         try {
           const buffer = await fileToArrayBuffer(file)
+          const originalPath = window.api.getPathForFile(file) || undefined
           const result = await window.api.uploadFile(
-            { buffer, name: file.name, size: file.size },
+            { buffer, name: file.name, size: file.size, originalPath },
             options
           )
           results.push(result)

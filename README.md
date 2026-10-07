@@ -32,7 +32,7 @@
 - **Auto Clipboard** — Copy the upload URL automatically (Raw / Markdown / HTML formats)
 - **Auto Rename** — Rename to timestamp or random ID to avoid filename collisions
 - **Credential Profiles** — Save and switch between multiple R2 connection configs
-- **Upload History** — Browse and re-copy past upload URLs
+- **Upload History** — Browse past uploads, track original local file paths and original file names, copy URLs or paths, and locate files in folder
 - **Light / Dark Mode** — Switch themes from Settings
 - **Export / Import** — Back up and restore all settings and history as JSON
 - **Cross-platform** — Windows, macOS, and Linux

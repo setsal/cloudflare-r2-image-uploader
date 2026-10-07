@@ -231,3 +231,14 @@ export function IconResize(props: IconProps = {}) {
   )
 }
 
+// Folder / locate directory
+export function IconFolder(props: IconProps = {}) {
+  const { size = 16, className } = props
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className} style={{ flexShrink: 0 }}>
+      <path d="M2 3.5a1.5 1.5 0 0 1 1.5-1.5h3l1.5 2h4.5a1.5 1.5 0 0 1 1.5 1.5v6a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 11V3.5z" />
+    </svg>
+  )
+}
+
+
