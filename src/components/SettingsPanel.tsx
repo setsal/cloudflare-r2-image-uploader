@@ -28,6 +28,7 @@ export function SettingsPanel({
 }: SettingsPanelProps) {
   const { addToast } = useToast()
   const [newProfileName, setNewProfileName] = useState('')
+  const [isAddingProfile, setIsAddingProfile] = useState(false)
   const [testing, setTesting] = useState(false)
   const [configPath, setConfigPath] = useState('')
   const [historyPath, setHistoryPath] = useState('')
@@ -90,6 +91,7 @@ export function SettingsPanel({
     })
     await onUpdateConfig({ activeProfile: name })
     setNewProfileName('')
+    setIsAddingProfile(false)
     addToast(`Profile "${name}" created`, 'success')
   }
 
@@ -183,6 +185,7 @@ export function SettingsPanel({
               onChange={(e) => {
                 onUpdateConfig({ activeProfile: e.target.value })
                 setConfirmDelete(false)
+                setIsAddingProfile(false)
               }}
             >
               {profileNames.map((name) => (
@@ -192,49 +195,92 @@ export function SettingsPanel({
               ))}
             </select>
           </div>
-        </div>
 
-        <div className="flex gap-sm items-center">
-          <input
-            className="form-input flex-1"
-            type="text"
-            value={newProfileName}
-            onChange={(e) => setNewProfileName(e.target.value)}
-            placeholder="New profile name..."
-            onKeyDown={(e) => e.key === 'Enter' && handleAddProfile()}
-          />
-          <button className="btn btn--secondary btn--sm" onClick={handleAddProfile}>
-            + Add
-          </button>
-        </div>
-
-        {config.activeProfile !== 'Default' && (
-          <div className="flex gap-sm items-center">
-            {!confirmDelete ? (
+          <div className="profile-selector__actions">
+            <button
+              type="button"
+              className="btn btn--secondary"
+              onClick={() => {
+                setIsAddingProfile((prev) => !prev)
+                setConfirmDelete(false)
+              }}
+            >
+              + New
+            </button>
+            {config.activeProfile !== 'Default' && (
               <button
-                className="btn btn--danger btn--sm"
-                onClick={() => handleDeleteProfile(config.activeProfile)}
+                type="button"
+                className="btn btn--danger"
+                onClick={() => {
+                  setConfirmDelete(true)
+                  setIsAddingProfile(false)
+                }}
                 id="delete-profile"
+                title={`Delete profile "${config.activeProfile}"`}
               >
-                <IconTrash size={12} /> Delete "{config.activeProfile}"
+                <IconTrash size={14} />
               </button>
-            ) : (
-              <>
-                <span className="text-sm text-error">Delete this profile and all its credentials?</span>
-                <button
-                  className="btn btn--danger btn--sm"
-                  onClick={() => handleDeleteProfile(config.activeProfile)}
-                >
-                  Confirm
-                </button>
-                <button
-                  className="btn btn--secondary btn--sm"
-                  onClick={() => setConfirmDelete(false)}
-                >
-                  Cancel
-                </button>
-              </>
             )}
+          </div>
+        </div>
+
+        {isAddingProfile && (
+          <div className="profile-inline-panel">
+            <input
+              className="form-input flex-1"
+              type="text"
+              value={newProfileName}
+              onChange={(e) => setNewProfileName(e.target.value)}
+              placeholder="New profile name..."
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleAddProfile()
+                if (e.key === 'Escape') {
+                  setIsAddingProfile(false)
+                  setNewProfileName('')
+                }
+              }}
+            />
+            <button
+              type="button"
+              className="btn btn--primary btn--sm"
+              onClick={handleAddProfile}
+              disabled={!newProfileName.trim()}
+            >
+              Create
+            </button>
+            <button
+              type="button"
+              className="btn btn--ghost btn--sm"
+              onClick={() => {
+                setIsAddingProfile(false)
+                setNewProfileName('')
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
+        {confirmDelete && config.activeProfile !== 'Default' && (
+          <div className="profile-inline-panel profile-inline-panel--danger">
+            <span className="text-sm text-error flex-1">
+              Delete "{config.activeProfile}" and all its credentials?
+            </span>
+            <button
+              type="button"
+              className="btn btn--danger btn--sm"
+              onClick={() => handleDeleteProfile(config.activeProfile)}
+            >
+              Confirm
+            </button>
+            <button
+              type="button"
+              className="btn btn--secondary btn--sm"
+              onClick={() => setConfirmDelete(false)}
+            >
+              Cancel
+            </button>
           </div>
         )}
       </div>

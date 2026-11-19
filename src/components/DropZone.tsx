@@ -1,10 +1,16 @@
-import { useState, useCallback, useEffect, DragEvent } from 'react'
+import { useState, useCallback, useEffect, DragEvent, KeyboardEvent } from 'react'
 import { getCurrentWebview } from '@tauri-apps/api/webview'
-import { IconUpload } from './Icons'
+import { IconUpload, IconCopy, IconImage } from './Icons'
 
 interface DropZoneProps {
   onFiles: (files: File[]) => void
   onRejectNonImage?: (count: number) => void
+  onPasteClipboard?: () => void
+  processingStatus?: {
+    enabled: boolean
+    summary: string
+  }
+  onNavigateImageSettings?: () => void
   disabled?: boolean
 }
 
@@ -29,7 +35,14 @@ function isImagePath(filePath: string): boolean {
   return IMAGE_EXTENSIONS.has(ext)
 }
 
-export function DropZone({ onFiles, onRejectNonImage, disabled }: DropZoneProps) {
+export function DropZone({
+  onFiles,
+  onRejectNonImage,
+  onPasteClipboard,
+  processingStatus,
+  onNavigateImageSettings,
+  disabled
+}: DropZoneProps) {
   const [isDragActive, setIsDragActive] = useState(false)
 
   // Listen to Tauri native file drag-and-drop events (provides full originalPath)
@@ -151,6 +164,17 @@ export function DropZone({ onFiles, onRejectNonImage, disabled }: DropZoneProps)
     input.click()
   }, [onFiles, disabled])
 
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      if (e.target !== e.currentTarget) return
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault()
+        handleClick()
+      }
+    },
+    [handleClick]
+  )
+
   return (
     <div
       className={`dropzone ${isDragActive ? 'dropzone--active' : ''}`}
@@ -159,10 +183,28 @@ export function DropZone({ onFiles, onRejectNonImage, disabled }: DropZoneProps)
       onDragOver={handleDrag}
       onDrop={handleDrop}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
       id="dropzone"
     >
+      {processingStatus && (
+        <button
+          type="button"
+          className={`dropzone__status-pill ${
+            processingStatus.enabled ? 'dropzone__status-pill--active' : ''
+          }`}
+          onClick={(e) => {
+            e.stopPropagation()
+            onNavigateImageSettings?.()
+          }}
+          title="Click to configure image compression & resize"
+        >
+          <IconImage size={12} />
+          <span>{processingStatus.summary}</span>
+        </button>
+      )}
+
       <div className="dropzone__icon">
         <IconUpload size={24} />
       </div>
@@ -174,6 +216,22 @@ export function DropZone({ onFiles, onRejectNonImage, disabled }: DropZoneProps)
           ? 'Release to start upload'
           : 'or click to browse — JPEG, PNG, WebP, AVIF, GIF, SVG'}
       </div>
+
+      {onPasteClipboard && (
+        <div className="dropzone__actions" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            className="btn btn--secondary btn--sm dropzone__paste-btn"
+            onClick={onPasteClipboard}
+            disabled={disabled}
+            id="paste-clipboard"
+          >
+            <IconCopy size={13} />
+            <span>Paste from Clipboard</span>
+            <kbd className="kbd-badge">Ctrl+V</kbd>
+          </button>
+        </div>
+      )}
     </div>
   )
 }

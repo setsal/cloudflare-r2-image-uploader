@@ -230,13 +230,23 @@ body {
   color: #ffffff;
 }
 
+.app-nav-container {
+  padding: 4px var(--space-lg) 0;
+  max-width: 880px;
+  width: 100%;
+  margin: 0 auto;
+}
+
 .app-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  padding: var(--space-md) var(--space-lg);
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
   gap: var(--space-md);
+  max-width: 880px;
+  width: 100%;
+  margin: 0 auto;
 }
 
 /* --- Navigation Tabs --- */
@@ -285,20 +295,95 @@ body {
 /* --- Drop Zone --- */
 .dropzone {
   position: relative;
+  flex: 1;
   border: 2px dashed var(--border-medium);
-  border-radius: var(--radius-xl);
+  border-radius: var(--radius-lg);
   padding: var(--space-2xl) var(--space-xl);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--space-md);
+  gap: var(--space-sm);
   cursor: pointer;
   transition: all var(--transition-base);
-  background: var(--bg-glass);
-  min-height: 200px;
+  background: var(--bg-card);
+  min-height: 220px;
   text-align: center;
   overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.dropzone__status-pill {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-family: var(--font-family);
+  font-size: var(--font-xs);
+  font-weight: 500;
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.dropzone__status-pill:hover {
+  color: var(--text-primary);
+  border-color: var(--border-accent);
+  background: var(--bg-tertiary);
+}
+
+.dropzone__status-pill--active {
+  color: var(--text-accent);
+  border-color: var(--border-accent);
+  background: var(--accent-glow);
+}
+
+.dropzone__status-pill--active:hover {
+  border-color: var(--border-accent-strong);
+  background: var(--accent-glow-strong);
+}
+
+.dropzone__actions {
+  margin-top: var(--space-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.dropzone__paste-btn {
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-medium);
+}
+
+.dropzone__paste-btn:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  border-color: var(--border-accent);
+}
+
+.kbd-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 5px;
+  margin-left: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  line-height: 1.3;
 }
 
 .dropzone::before {
@@ -365,6 +450,15 @@ body {
 }
 
 /* --- Upload Controls --- */
+.upload-controls-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-lg);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(12px);
+}
+
 .upload-controls {
   display: flex;
   gap: var(--space-md);
@@ -373,11 +467,6 @@ body {
 
 .upload-controls__path {
   flex: 1;
-}
-
-.upload-actions {
-  display: flex;
-  gap: var(--space-sm);
 }
 
 /* --- Buttons --- */
@@ -682,6 +771,28 @@ body {
   flex: 1;
 }
 
+.profile-selector__actions {
+  display: flex;
+  gap: var(--space-xs);
+  align-items: center;
+}
+
+.profile-inline-panel {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  animation: slideUp 180ms ease-out;
+}
+
+.profile-inline-panel--danger {
+  background: var(--error-bg);
+  border-color: rgba(248, 113, 113, 0.25);
+}
+
 .profile-selector select {
   width: 100%;
   height: 38px;
@@ -983,11 +1094,23 @@ body {
 .status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 2px 8px;
+  gap: 5px;
+  padding: 2px 9px;
   border-radius: 12px;
+  font-family: var(--font-family);
   font-size: var(--font-xs);
   font-weight: 500;
+  border: 1px solid transparent;
+}
+
+.status-badge--clickable {
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.status-badge--clickable:hover {
+  filter: brightness(1.1);
+  border-color: currentColor;
 }
 
 .status-badge--success {

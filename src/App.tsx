@@ -8,7 +8,7 @@ import { UploadHistory } from './components/UploadHistory'
 import { SettingsPanel } from './components/SettingsPanel'
 import { ImageSettingsPanel } from './components/ImageSettingsPanel'
 import { ProcessingConfirmDialog } from './components/ProcessingConfirmDialog'
-import { IconUpload, IconImage, IconHistory, IconSettings, IconCopy } from './components/Icons'
+import { IconUpload, IconImage, IconHistory, IconSettings } from './components/Icons'
 import { useConfig } from './hooks/useConfig'
 import { useUpload } from './hooks/useUpload'
 import appIcon from './assets/app-icon.png'
@@ -141,6 +141,27 @@ function AppContent() {
     }
   }, [addToast, handleFiles])
 
+  // Global Ctrl+V / Cmd+V shortcut to paste image from clipboard
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'v') {
+        const activeEl = document.activeElement
+        const tag = activeEl?.tagName.toLowerCase()
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') {
+          return
+        }
+        if (uploading || processing || showConfirmDialog) {
+          return
+        }
+        e.preventDefault()
+        handlePasteFromClipboard()
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [handlePasteFromClipboard, uploading, processing, showConfirmDialog])
+
   const handleConfirmUpload = useCallback(async () => {
     setShowConfirmDialog(false)
     const uploadResults = await uploadProcessedFiles(processingResults, {
@@ -176,6 +197,22 @@ function AppContent() {
   const profile = config.profiles[config.activeProfile]
   const isConfigured = !!(profile?.endpoint && profile?.accessKeyId && profile?.bucketName)
 
+  // Format image processing status summary for DropZone badge
+  const proc = config.imageProcessing
+  const processingStatus = (() => {
+    if (!proc.enabled) {
+      return { enabled: false, summary: 'Processing: Off' }
+    }
+    const parts: string[] = []
+    if (proc.mode === 'compress' || proc.mode === 'both') {
+      parts.push(`Compress ${proc.compression.quality}%`)
+    }
+    if (proc.mode === 'resize' || proc.mode === 'both') {
+      parts.push(`Resize ${proc.resize.percentage}%`)
+    }
+    return { enabled: true, summary: parts.join(' · ') }
+  })()
+
   return (
     <div className="app">
       {/* Title Bar Area */}
@@ -185,12 +222,17 @@ function AppContent() {
           Cloudflare R2 Image Uploader
         </div>
         <div className="app-header__actions">
-          <span
-            className={`status-badge ${isConfigured ? 'status-badge--success' : 'status-badge--error'}`}
+          <button
+            type="button"
+            className={`status-badge status-badge--clickable ${
+              isConfigured ? 'status-badge--success' : 'status-badge--error'
+            }`}
+            onClick={() => setActiveTab('settings')}
+            title="Click to manage R2 profiles & settings"
           >
             <span className="status-badge__dot" />
             {isConfigured ? config.activeProfile : 'Not configured'}
-          </span>
+          </button>
           <div className="window-controls">
             <button
               type="button"
@@ -243,7 +285,7 @@ function AppContent() {
       </div>
 
       {/* Navigation */}
-      <div style={{ padding: '0 24px' }}>
+      <div className="app-nav-container">
         <nav className="nav-tabs" id="main-nav">
           {tabs.map((tab) => (
             <button
@@ -266,30 +308,24 @@ function AppContent() {
             <DropZone
               onFiles={handleFiles}
               onRejectNonImage={handleRejectNonImage}
+              onPasteClipboard={handlePasteFromClipboard}
+              processingStatus={processingStatus}
+              onNavigateImageSettings={() => setActiveTab('image')}
               disabled={uploading || processing}
             />
 
-            <div className="upload-actions">
-              <button
-                className="btn btn--secondary"
-                onClick={handlePasteFromClipboard}
-                disabled={uploading || processing}
-                id="paste-clipboard"
-              >
-                <IconCopy size={14} /> Paste from Clipboard
-              </button>
-            </div>
-
-            <div className="upload-controls">
-              <PathInput
-                value={uploadPath}
-                onChange={setUploadPath}
-                defaultPrefix={profile?.defaultPathPrefix}
-              />
-              <RenameToggle
-                value={config.autoRename}
-                onChange={(v) => updateConfig({ autoRename: v })}
-              />
+            <div className="upload-controls-card">
+              <div className="upload-controls">
+                <PathInput
+                  value={uploadPath}
+                  onChange={setUploadPath}
+                  defaultPrefix={profile?.defaultPathPrefix}
+                />
+                <RenameToggle
+                  value={config.autoRename}
+                  onChange={(v) => updateConfig({ autoRename: v })}
+                />
+              </div>
             </div>
 
             <UploadProgress results={results} uploading={uploading} />
