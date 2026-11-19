@@ -179,8 +179,8 @@ function AppContent() {
   return (
     <div className="app">
       {/* Title Bar Area */}
-      <div className="app-header">
-        <div className="app-header__title">
+      <div className="app-header" data-tauri-drag-region>
+        <div className="app-header__title" data-tauri-drag-region>
           <img src={appIcon} alt="" className="app-header__title-icon" />
           Cloudflare R2 Image Uploader
         </div>
@@ -191,6 +191,54 @@ function AppContent() {
             <span className="status-badge__dot" />
             {isConfigured ? config.activeProfile : 'Not configured'}
           </span>
+          <div className="window-controls">
+            <button
+              type="button"
+              className="window-control-btn"
+              onClick={() => window.api.minimizeWindow()}
+              title="Minimize"
+              aria-label="Minimize"
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path d="M1 5H9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className="window-control-btn"
+              onClick={() => window.api.maximizeWindow()}
+              title="Maximize"
+              aria-label="Maximize"
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <rect
+                  x="1.5"
+                  y="1.5"
+                  width="7"
+                  height="7"
+                  rx="1"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                />
+              </svg>
+            </button>
+            <button
+              type="button"
+              className="window-control-btn window-control-btn--close"
+              onClick={() => window.api.closeWindow()}
+              title="Close"
+              aria-label="Close"
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+                <path
+                  d="M2 2L8 8M8 2L2 8"
+                  stroke="currentColor"
+                  strokeWidth="1.2"
+                  strokeLinecap="round"
+                />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
 

@@ -1,0 +1,36 @@
+[package]
+name = "cloudflare-r2-image-uploader"
+version = "1.0.0"
+description = "A minimalist desktop tool for quickly uploading images to Cloudflare R2 storage with compression and resize"
+authors = [""]
+license = "MIT"
+edition = "2021"
+
+[lib]
+name = "cloudflare_r2_image_uploader_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon", "image-png"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
+hmac = "0.12"
+sha2 = "0.10"
+hex = "0.4"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+url = "2"
+mime_guess = "2"
+nanoid = "0.4"
+base64 = "0.22"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png", "gif", "webp", "tiff", "bmp", "ico", "avif"] }
+imagequant = "4"
+png = "0.17"
+webp = "0.3"
+rfd = "0.15"
+arboard = "3.4"
+dirs = "6"

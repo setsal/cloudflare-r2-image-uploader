@@ -1,12 +1,15 @@
 # Dependencies
 node_modules/
 
-# Build output
+# Frontend build output
 out/
 dist/
-
-# electron-builder output
 release/
+
+# Tauri / Rust build output
+src-tauri/target/
+src-tauri/gen/
+src-tauri/WixTools/
 
 # IDE
 .vscode/

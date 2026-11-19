@@ -1,4 +1,34 @@
-import { AppConfig, UploadResult, UploadHistoryItem, R2Config, ImageProcessingConfig, ImageProcessingResult } from '../common/types'
+/// <reference types="vite/client" />
+
+import {
+  AppConfig,
+  UploadResult,
+  UploadHistoryItem,
+  R2Config,
+  ImageProcessingConfig,
+  ImageProcessingResult
+} from './common/types'
+
+// Asset imports — Vite resolves these to URL strings at build time
+declare module '*.png' {
+  const src: string
+  export default src
+}
+
+declare module '*.jpg' {
+  const src: string
+  export default src
+}
+
+declare module '*.svg' {
+  const src: string
+  export default src
+}
+
+declare module '*.webp' {
+  const src: string
+  export default src
+}
 
 declare global {
   interface Window {
@@ -16,6 +46,7 @@ declare global {
       // Path resolution & shell
       getPathForFile: (file: File) => string
       showItemInFolder: (path: string) => Promise<{ success: boolean; error?: string }>
+      readLocalFiles: (paths: string[]) => Promise<File[]>
 
       // Upload
       uploadFile: (
@@ -28,7 +59,12 @@ declare global {
 
       // Clipboard
       copyToClipboard: (text: string) => Promise<boolean>
-      readClipboardImage: () => Promise<{ buffer: ArrayBuffer; width: number; height: number; size: number } | null>
+      readClipboardImage: () => Promise<{
+        buffer: ArrayBuffer
+        width: number
+        height: number
+        size: number
+      } | null>
 
       // File dialog
       openFileDialog: () => Promise<string[] | null>
@@ -48,6 +84,7 @@ declare global {
 
       // Window controls
       minimizeWindow: () => Promise<void>
+      maximizeWindow: () => Promise<void>
       closeWindow: () => Promise<void>
     }
   }

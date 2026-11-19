@@ -20,12 +20,18 @@
   <img src=".github/assets/main.png" alt="App Screenshot" width="600" />
 </p>
 
+## 📖 Tutorial & Blog Post
+
+For a step-by-step guide on setting up your own free personal image hosting with **Cloudflare R2** (bucket creation, custom domain binding, API token permissions) and the background behind building **R2 Image Uploader**, check out the author's blog post:
+
+- 📝 **[[Tech] Cloudflare R2 打造免費的個人圖床 + 自製圖片上傳壓縮小工具 R2 Image Uploader](https://blog.setsal.dev/build-free-image-hosting-cloudflare-r2/)**
+
 ## Key Features
 
 - **Image-Only Upload** — Focused on images (JPEG, PNG, WebP, AVIF, GIF, SVG, and more)
 - **Drag & Drop** — Drop images directly onto the app for instant upload
 - **Paste from Clipboard** — One-click paste of screenshots or copied images
-- **Built-in Compression** — Quality-based compression powered by sharp — optimize images in one step, no external tools needed
+- **Built-in Compression** — Quality-based compression powered by Rust (`image` + `imagequant` + `webp`) — optimize images in one step, no external tools needed
 - **Built-in Resize** — Percentage-based scaling with quick presets (25%, 50%, 75%, 100%)
 - **Pre-Upload Preview** — See estimated compressed size and savings before uploading
 - **Auto-Confirm** — Optionally skip the confirmation dialog for a fully automatic workflow
@@ -82,11 +88,11 @@ Processing is **off by default** — enable it only when you need it.
 
 ## Tech Stack
 
-- **Electron** + **electron-vite** — Desktop framework
-- **React 18** + **TypeScript** — UI
-- **sharp** — High-performance image compression and resize (libvips)
-- **AWS SDK v3** (`@aws-sdk/client-s3`) — S3-compatible R2 uploads
-- **electron-store** — Persistent local config (config + history as separate files)
+- **Tauri v2** + **Rust** — Lightweight native desktop framework
+- **React 18** + **TypeScript** + **Vite** — UI
+- **Rust `image` / `imagequant` / `webp`** — Native image compression and resize
+- **Rust `reqwest` + AWS SigV4** — S3-compatible Cloudflare R2 uploads
+- **Serde JSON** — Persistent local config (`config.json` + `history.json` as separate files)
 
 ## License
 

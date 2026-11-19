@@ -1,4 +1,5 @@
-import { useState, useCallback, DragEvent } from 'react'
+import { useState, useCallback, useEffect, DragEvent } from 'react'
+import { getCurrentWebview } from '@tauri-apps/api/webview'
 import { IconUpload } from './Icons'
 
 interface DropZoneProps {
@@ -7,8 +8,73 @@ interface DropZoneProps {
   disabled?: boolean
 }
 
+const IMAGE_EXTENSIONS = new Set([
+  'jpg',
+  'jpeg',
+  'png',
+  'gif',
+  'webp',
+  'avif',
+  'svg',
+  'bmp',
+  'tiff',
+  'tif',
+  'ico',
+  'heic',
+  'heif'
+])
+
+function isImagePath(filePath: string): boolean {
+  const ext = filePath.split('.').pop()?.toLowerCase() || ''
+  return IMAGE_EXTENSIONS.has(ext)
+}
+
 export function DropZone({ onFiles, onRejectNonImage, disabled }: DropZoneProps) {
   const [isDragActive, setIsDragActive] = useState(false)
+
+  // Listen to Tauri native file drag-and-drop events (provides full originalPath)
+  useEffect(() => {
+    let unlisten: (() => void) | undefined
+
+    const setupTauriDragDrop = async () => {
+      try {
+        unlisten = await getCurrentWebview().onDragDropEvent(async (event) => {
+          if (event.payload.type === 'enter' || event.payload.type === 'over') {
+            setIsDragActive(true)
+          } else if (event.payload.type === 'leave') {
+            setIsDragActive(false)
+          } else if (event.payload.type === 'drop') {
+            setIsDragActive(false)
+            if (disabled) return
+
+            const allPaths = event.payload.paths || []
+            if (allPaths.length === 0) return
+
+            const imagePaths = allPaths.filter(isImagePath)
+            const rejectedCount = allPaths.length - imagePaths.length
+
+            if (rejectedCount > 0 && onRejectNonImage) {
+              onRejectNonImage(rejectedCount)
+            }
+
+            if (imagePaths.length > 0) {
+              const files = await window.api.readLocalFiles(imagePaths)
+              if (files.length > 0) {
+                onFiles(files)
+              }
+            }
+          }
+        })
+      } catch {
+        // Fallback to HTML5 drag-drop if running outside Tauri webview
+      }
+    }
+
+    setupTauriDragDrop()
+    return () => {
+      if (unlisten) unlisten()
+    }
+  }, [onFiles, onRejectNonImage, disabled])
 
   const handleDrag = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.preventDefault()
@@ -38,6 +104,8 @@ export function DropZone({ onFiles, onRejectNonImage, disabled }: DropZoneProps)
       if (disabled) return
 
       const allFiles = Array.from(e.dataTransfer.files)
+      if (allFiles.length === 0) return
+
       const imageFiles = allFiles.filter((f) => f.type.startsWith('image/'))
       const rejectedCount = allFiles.length - imageFiles.length
 
@@ -52,8 +120,21 @@ export function DropZone({ onFiles, onRejectNonImage, disabled }: DropZoneProps)
     [onFiles, onRejectNonImage, disabled]
   )
 
-  const handleClick = useCallback(() => {
+  const handleClick = useCallback(async () => {
     if (disabled) return
+
+    try {
+      const selectedPaths = await window.api.openFileDialog()
+      if (selectedPaths && selectedPaths.length > 0) {
+        const files = await window.api.readLocalFiles(selectedPaths)
+        if (files.length > 0) {
+          onFiles(files)
+        }
+      }
+      return
+    } catch {
+      // Fallback to browser file input
+    }
 
     const input = document.createElement('input')
     input.type = 'file'

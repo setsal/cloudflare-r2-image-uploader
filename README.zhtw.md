@@ -20,12 +20,18 @@
   <img src=".github/assets/main.png" alt="應用程式截圖" width="600" />
 </p>
 
+## 📖 完整教學與介紹文章
+
+如果你想知道如何從零開始利用 **Cloudflare R2** 架設免費的個人圖床（包含建立 R2 儲存桶、綁定自訂網域、申請 API Token 權限設定），以及開發這款 **R2 Image Uploader** 小工具的設計理念與完整使用教學，歡迎閱讀作者撰寫的部落格文章：
+
+- 📝 **[[Tech] Cloudflare R2 打造免費的個人圖床 + 自製圖片上傳壓縮小工具 R2 Image Uploader](https://blog.setsal.dev/build-free-image-hosting-cloudflare-r2/)**
+
 ## 主要功能
 
 - **僅限圖片上傳** —— 專注於圖片格式（JPEG、PNG、WebP、AVIF、GIF、SVG 等）
 - **拖放上傳** —— 直接將圖片拖放到應用程式即可立即上傳
 - **剪貼簿貼上** —— 一鍵貼上截圖或已複製的圖片
-- **內建壓縮** —— 採用 sharp 引擎的品質壓縮 —— 一步到位優化圖片，無需任何外部工具
+- **內建壓縮** —— 採用 Rust 原生圖片引擎（`image` + `imagequant` + `webp`）的品質壓縮 —— 一步到位優化圖片，無需任何外部工具
 - **內建縮放** —— 百分比縮放，提供快速預設（25%、50%、75%、100%）
 - **上傳前預覽** —— 上傳前查看預估壓縮大小與節省空間
 - **自動確認** —— 可選擇跳過確認對話框，實現全自動化工作流程
@@ -83,11 +89,11 @@ npm run build:linux  # Linux
 
 ## 技術堆疊
 
-- **Electron** + **electron-vite** —— 桌面應用框架
-- **React 18** + **TypeScript** —— 使用者介面
-- **sharp** —— 高效能圖片壓縮與縮放（基於 libvips）
-- **AWS SDK v3**（`@aws-sdk/client-s3`）—— 相容 S3 的 R2 上傳
-- **electron-store** —— 本地持久化設定（設定與歷史紀錄分離儲存）
+- **Tauri v2** + **Rust** —— 輕量級原生桌面應用框架
+- **React 18** + **TypeScript** + **Vite** —— 使用者介面
+- **Rust `image` / `imagequant` / `webp`** —— 高效能原生圖片壓縮與縮放
+- **Rust `reqwest` + AWS SigV4** —— 相容 S3 的 Cloudflare R2 上傳
+- **Serde JSON** —— 本地持久化設定（`config.json` 與 `history.json` 分離儲存）
 
 ## License
 
