@@ -35,9 +35,7 @@ export function SettingsPanel({
   const [showSecrets, setShowSecrets] = useState<Record<string, boolean>>({
     endpoint: false,
     accessKeyId: false,
-    secretAccessKey: false,
-    bucketName: false,
-    publicUrlBase: false
+    secretAccessKey: false
   })
   const [confirmDelete, setConfirmDelete] = useState(false)
 
@@ -287,7 +285,26 @@ export function SettingsPanel({
 
       {/* R2 Connection */}
       <div className="settings__section">
-        <div className="settings__section-title">R2 Connection</div>
+        <div className="settings__section-header">
+          <div className="settings__section-title">R2 Connection</div>
+          <button
+            type="button"
+            className="btn btn--secondary btn--sm"
+            onClick={handleTestConnection}
+            disabled={testing}
+            id="test-connection"
+          >
+            {testing ? (
+              <>
+                <span className="spinner" style={{ width: 12, height: 12 }} /> Testing...
+              </>
+            ) : (
+              <>
+                <IconLink size={12} /> Test Connection
+              </>
+            )}
+          </button>
+        </div>
 
         <div className="form-group">
           <label className="form-label" htmlFor="endpoint">S3 API Endpoint</label>
@@ -326,55 +343,42 @@ export function SettingsPanel({
         <div className="settings__row">
           <div className="form-group">
             <label className="form-label" htmlFor="bucket-name">Bucket Name</label>
-            <SecretInput
+            <input
               id="bucket-name"
-              field="bucketName"
+              className="form-input"
+              type="text"
               value={activeProfile?.bucketName || ''}
-              onChange={(v) => updateActiveProfile({ bucketName: v })}
+              onChange={(e) => updateActiveProfile({ bucketName: e.target.value })}
               placeholder="my-bucket"
+              spellCheck={false}
             />
           </div>
           <div className="form-group">
-            <label className="form-label" htmlFor="public-url">Public URL Base</label>
-            <SecretInput
-              id="public-url"
-              field="publicUrlBase"
-              value={activeProfile?.publicUrlBase || ''}
-              onChange={(v) => updateActiveProfile({ publicUrlBase: v })}
-              placeholder="https://images.yourdomain.com"
+            <label className="form-label" htmlFor="default-path">Default Path Prefix</label>
+            <input
+              id="default-path"
+              className="form-input"
+              type="text"
+              value={activeProfile?.defaultPathPrefix || ''}
+              onChange={(e) => updateActiveProfile({ defaultPathPrefix: e.target.value })}
+              placeholder="blog/images/"
+              spellCheck={false}
             />
           </div>
         </div>
 
         <div className="form-group">
-          <label className="form-label" htmlFor="default-path">Default Path Prefix</label>
+          <label className="form-label" htmlFor="public-url">Public URL Base</label>
           <input
-            id="default-path"
+            id="public-url"
             className="form-input"
             type="text"
-            value={activeProfile?.defaultPathPrefix || ''}
-            onChange={(e) => updateActiveProfile({ defaultPathPrefix: e.target.value })}
-            placeholder="blog/images/"
+            value={activeProfile?.publicUrlBase || ''}
+            onChange={(e) => updateActiveProfile({ publicUrlBase: e.target.value })}
+            placeholder="https://images.yourdomain.com"
             spellCheck={false}
           />
         </div>
-
-        <button
-          className="btn btn--secondary"
-          onClick={handleTestConnection}
-          disabled={testing}
-          id="test-connection"
-        >
-          {testing ? (
-            <>
-              <span className="spinner" /> Testing...
-            </>
-          ) : (
-            <>
-              <IconLink size={14} /> Test Connection
-            </>
-          )}
-        </button>
       </div>
 
       {/* Preferences */}
@@ -421,62 +425,93 @@ export function SettingsPanel({
           </label>
         </div>
 
-        <div className="form-group">
-          <label className="form-label">Auto Rename Mode</label>
-          <div className="segmented" id="settings-rename-toggle">
-            {(['off', 'timestamp', 'random'] as const).map((mode) => (
-              <button
-                key={mode}
-                className={`segmented__option ${config.autoRename === mode ? 'segmented__option--active' : ''}`}
-                onClick={() => onUpdateConfig({ autoRename: mode })}
-              >
-                {mode === 'off' ? 'Off' : mode === 'timestamp' ? 'Timestamp' : 'Random'}
-              </button>
-            ))}
+        <div className="settings__row">
+          <div className="form-group">
+            <label className="form-label">Auto Rename Mode</label>
+            <div className="segmented" id="settings-rename-toggle">
+              {(['off', 'timestamp', 'random'] as const).map((mode) => (
+                <button
+                  key={mode}
+                  className={`segmented__option ${config.autoRename === mode ? 'segmented__option--active' : ''}`}
+                  onClick={() => onUpdateConfig({ autoRename: mode })}
+                >
+                  {mode === 'off' ? 'Off' : mode === 'timestamp' ? 'Timestamp' : 'Random'}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        <div className="form-group">
-          <label className="form-label">Clipboard Format</label>
-          <div className="segmented" id="clipboard-format-toggle">
-            {(['raw', 'markdown', 'html'] as const).map((fmt) => (
-              <button
-                key={fmt}
-                className={`segmented__option ${config.clipboardFormat === fmt ? 'segmented__option--active' : ''}`}
-                onClick={() => onUpdateConfig({ clipboardFormat: fmt })}
-              >
-                {fmt === 'raw' ? 'Raw URL' : fmt === 'markdown' ? 'Markdown' : 'HTML'}
-              </button>
-            ))}
+          <div className="form-group">
+            <label className="form-label">Clipboard Format</label>
+            <div className="segmented" id="clipboard-format-toggle">
+              {(['raw', 'markdown', 'html'] as const).map((fmt) => (
+                <button
+                  key={fmt}
+                  className={`segmented__option ${config.clipboardFormat === fmt ? 'segmented__option--active' : ''}`}
+                  onClick={() => onUpdateConfig({ clipboardFormat: fmt })}
+                >
+                  {fmt === 'raw' ? 'Raw URL' : fmt === 'markdown' ? 'Markdown' : 'HTML'}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Data Management */}
       <div className="settings__section">
-        <div className="settings__section-title">Data Management</div>
-
-        <div className="config-info">
-          <label className="form-label">Config File</label>
-          <div className="config-info__path" title={configPath}>
-            {configPath || 'Loading...'}
+        <div className="settings__section-header">
+          <div className="settings__section-title">Data Management</div>
+          <div className="config-info__actions">
+            <button className="btn btn--secondary btn--sm" onClick={handleExport} id="export-config">
+              <IconExport size={12} /> Export
+            </button>
+            <button className="btn btn--secondary btn--sm" onClick={handleImport} id="import-config">
+              <IconImport size={12} /> Import
+            </button>
           </div>
         </div>
 
-        <div className="config-info">
-          <label className="form-label">History File</label>
-          <div className="config-info__path" title={historyPath}>
-            {historyPath || 'Loading...'}
+        <div className="config-paths-list">
+          <div className="config-path-row">
+            <span className="config-path-row__label">Config</span>
+            <div className="config-path-row__value" title={configPath}>
+              {configPath || 'Loading...'}
+            </div>
+            {configPath && (
+              <button
+                type="button"
+                className="btn btn--ghost btn--sm"
+                onClick={() => {
+                  window.api.copyToClipboard(configPath)
+                  addToast('Config path copied!', 'success')
+                }}
+                title="Copy config path"
+              >
+                <IconCopy size={12} />
+              </button>
+            )}
           </div>
-        </div>
 
-        <div className="config-info__actions">
-          <button className="btn btn--secondary" onClick={handleExport} id="export-config">
-            <IconExport size={14} /> Export Settings
-          </button>
-          <button className="btn btn--secondary" onClick={handleImport} id="import-config">
-            <IconImport size={14} /> Import Settings
-          </button>
+          <div className="config-path-row">
+            <span className="config-path-row__label">History</span>
+            <div className="config-path-row__value" title={historyPath}>
+              {historyPath || 'Loading...'}
+            </div>
+            {historyPath && (
+              <button
+                type="button"
+                className="btn btn--ghost btn--sm"
+                onClick={() => {
+                  window.api.copyToClipboard(historyPath)
+                  addToast('History path copied!', 'success')
+                }}
+                title="Copy history path"
+              >
+                <IconCopy size={12} />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

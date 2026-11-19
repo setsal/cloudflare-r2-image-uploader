@@ -17,9 +17,12 @@ export function ImageSettingsPanel({ config, onUpdateConfig }: ImageSettingsPane
 
   const presetPercentages = [25, 50, 75, 100]
 
+  const isCompressActive = proc.enabled && (proc.mode === 'compress' || proc.mode === 'both')
+  const isResizeActive = proc.enabled && (proc.mode === 'resize' || proc.mode === 'both')
+
   return (
     <div className="settings">
-      {/* Master Toggle */}
+      {/* Master Toggle & Mode */}
       <div className="settings__section">
         <div className="settings__section-title">Image Processing</div>
 
@@ -41,123 +44,118 @@ export function ImageSettingsPanel({ config, onUpdateConfig }: ImageSettingsPane
             <span className="toggle-switch__slider" />
           </label>
         </div>
-      </div>
 
-      {/* Processing Mode */}
-      <div className={`settings__section ${!proc.enabled ? 'section-disabled' : ''}`}>
-        <div className="settings__section-title">Processing Mode</div>
-
-        <div className="segmented" id="processing-mode-toggle">
-          {(['compress', 'resize', 'both'] as const).map((mode) => (
-            <button
-              key={mode}
-              className={`segmented__option ${proc.mode === mode ? 'segmented__option--active' : ''}`}
-              onClick={() => updateProcessing({ mode })}
-              disabled={!proc.enabled}
-            >
-              {mode === 'compress' && <><IconCompress size={12} /> Compress</>}
-              {mode === 'resize' && <><IconResize size={12} /> Resize</>}
-              {mode === 'both' && <>Both</>}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Compression Settings */}
-      <div
-        className={`settings__section ${
-          !proc.enabled || (proc.mode !== 'compress' && proc.mode !== 'both')
-            ? 'section-disabled'
-            : ''
-        }`}
-      >
-        <div className="settings__section-title">Compression</div>
-
-        <div className="form-group">
-          <label className="form-label" htmlFor="compression-quality">
-            Quality — {proc.compression.quality}%
-          </label>
-          <div className="slider-container">
-            <input
-              id="compression-quality"
-              className="slider"
-              type="range"
-              min={1}
-              max={100}
-              step={1}
-              value={proc.compression.quality}
-              onChange={(e) =>
-                updateProcessing({
-                  compression: { quality: parseInt(e.target.value) }
-                })
-              }
-              disabled={!proc.enabled || (proc.mode !== 'compress' && proc.mode !== 'both')}
-            />
-            <div className="slider-labels">
-              <span>Smaller file</span>
-              <span>Higher quality</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Resize Settings */}
-      <div
-        className={`settings__section ${
-          !proc.enabled || (proc.mode !== 'resize' && proc.mode !== 'both')
-            ? 'section-disabled'
-            : ''
-        }`}
-      >
-        <div className="settings__section-title">Resize</div>
-
-        <div className="form-group">
-          <label className="form-label" htmlFor="resize-percentage">
-            Scale — {proc.resize.percentage}%
-          </label>
-
-          <div className="preset-buttons">
-            {presetPercentages.map((pct) => (
+        <div className={`form-group ${!proc.enabled ? 'section-disabled' : ''}`}>
+          <label className="form-label">Processing Mode</label>
+          <div className="segmented" id="processing-mode-toggle">
+            {(['compress', 'resize', 'both'] as const).map((mode) => (
               <button
-                key={pct}
-                className={`preset-btn ${proc.resize.percentage === pct ? 'preset-btn--active' : ''}`}
-                onClick={() =>
-                  updateProcessing({ resize: { percentage: pct } })
-                }
-                disabled={!proc.enabled || (proc.mode !== 'resize' && proc.mode !== 'both')}
+                key={mode}
+                className={`segmented__option ${proc.mode === mode ? 'segmented__option--active' : ''}`}
+                onClick={() => updateProcessing({ mode })}
+                disabled={!proc.enabled}
               >
-                {pct}%
+                {mode === 'compress' && <><IconCompress size={12} /> Compress</>}
+                {mode === 'resize' && <><IconResize size={12} /> Resize</>}
+                {mode === 'both' && <>Both</>}
               </button>
             ))}
           </div>
+        </div>
+      </div>
 
-          <div className="slider-container">
-            <input
-              id="resize-percentage"
-              className="slider"
-              type="range"
-              min={10}
-              max={100}
-              step={5}
-              value={proc.resize.percentage}
-              onChange={(e) =>
-                updateProcessing({
-                  resize: { percentage: parseInt(e.target.value) }
-                })
-              }
-              disabled={!proc.enabled || (proc.mode !== 'resize' && proc.mode !== 'both')}
-            />
-            <div className="slider-labels">
-              <span>10%</span>
-              <span>100%</span>
-            </div>
+      {/* 2-Column Grid for Compression & Resize */}
+      <div className="settings__row settings__row--stretch">
+        {/* Compression Settings */}
+        <div className={`settings__section ${!isCompressActive ? 'section-disabled' : ''}`}>
+          <div className="settings__section-header">
+            <div className="settings__section-title">Compression</div>
+            <span className="settings__value-badge">{proc.compression.quality}%</span>
           </div>
 
-          {proc.resize.percentage < 100 && (
-            <div className="text-xs text-secondary" style={{ marginTop: 4 }}>
-              Images will be resized to {proc.resize.percentage}% of their original dimensions
+          <div className="form-group flex-1 justify-between">
+            <label className="form-label" htmlFor="compression-quality">
+              Output Quality
+            </label>
+            <div className="slider-container">
+              <input
+                id="compression-quality"
+                className="slider"
+                type="range"
+                min={1}
+                max={100}
+                step={1}
+                value={proc.compression.quality}
+                onChange={(e) =>
+                  updateProcessing({
+                    compression: { quality: parseInt(e.target.value) }
+                  })
+                }
+                disabled={!isCompressActive}
+              />
+              <div className="slider-labels">
+                <span>Smaller file</span>
+                <span>Higher quality</span>
+              </div>
             </div>
-          )}
+            <div className="text-xs text-secondary">
+              Recommended: 75%–85% for optimal size & clarity
+            </div>
+          </div>
+        </div>
+
+        {/* Resize Settings */}
+        <div className={`settings__section ${!isResizeActive ? 'section-disabled' : ''}`}>
+          <div className="settings__section-header">
+            <div className="settings__section-title">Resize</div>
+            <span className="settings__value-badge">{proc.resize.percentage}%</span>
+          </div>
+
+          <div className="form-group flex-1 justify-between">
+            <div className="preset-buttons">
+              {presetPercentages.map((pct) => (
+                <button
+                  key={pct}
+                  className={`preset-btn flex-1 ${proc.resize.percentage === pct ? 'preset-btn--active' : ''}`}
+                  onClick={() =>
+                    updateProcessing({ resize: { percentage: pct } })
+                  }
+                  disabled={!isResizeActive}
+                >
+                  {pct}%
+                </button>
+              ))}
+            </div>
+
+            <div className="slider-container">
+              <input
+                id="resize-percentage"
+                className="slider"
+                type="range"
+                min={10}
+                max={100}
+                step={5}
+                value={proc.resize.percentage}
+                onChange={(e) =>
+                  updateProcessing({
+                    resize: { percentage: parseInt(e.target.value) }
+                  })
+                }
+                disabled={!isResizeActive}
+                aria-label="Resize scale percentage"
+              />
+              <div className="slider-labels">
+                <span>10%</span>
+                <span>100%</span>
+              </div>
+            </div>
+
+            <div className="text-xs text-secondary">
+              {proc.resize.percentage < 100
+                ? `Scaled to ${proc.resize.percentage}% of original dimensions`
+                : 'Original dimensions preserved (100%)'}
+            </div>
+          </div>
         </div>
       </div>
 
