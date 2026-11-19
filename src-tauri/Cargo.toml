@@ -1,6 +1,6 @@
 [package]
 name = "cloudflare-r2-image-uploader"
-version = "1.0.0"
+version = "1.0.2"
 description = "A minimalist desktop tool for quickly uploading images to Cloudflare R2 storage with compression and resize"
 authors = [""]
 license = "MIT"
