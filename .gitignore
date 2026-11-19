@@ -1,3 +1,6 @@
+# AI
+.agents/*
+
 # Dependencies
 node_modules/
 
