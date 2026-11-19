@@ -16,13 +16,15 @@
   <a href="README.zhtw.md">中文</a>
 </p>
 
+## Demo
+
 <p align="center">
-  <img src=".github/assets/main.png" alt="App Screenshot" width="600" />
+  <img src=".github/assets/demo.gif" alt="Cloudflare R2 Image Uploader Demo" width="680" />
 </p>
 
-## 📖 Tutorial & Blog Post
+## 📖 Tutorial
 
-For a step-by-step guide on setting up your own free personal image hosting with **Cloudflare R2** (bucket creation, custom domain binding, API token permissions) and the background behind building **R2 Image Uploader**, check out the author's blog post:
+For a step-by-step guide on setting up your own free personal image hosting with **Cloudflare R2** and the background behind building **R2 Image Uploader**, check out my blog post:
 
 - 📝 **[[Tech] Cloudflare R2 打造免費的個人圖床 + 自製圖片上傳壓縮小工具 R2 Image Uploader](https://blog.setsal.dev/build-free-image-hosting-cloudflare-r2/)**
 
@@ -56,6 +58,9 @@ npm run dev
 npm run build:win    # Windows
 npm run build:mac    # macOS
 npm run build:linux  # Linux
+
+# Automatically re-record UI demo GIF, MP4, and screenshot after UI updates
+npm run demo:record
 ```
 
 ## Configuration

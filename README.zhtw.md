@@ -16,13 +16,15 @@
   <a href="README.md">English</a>
 </p>
 
+## Demo
+
 <p align="center">
-  <img src=".github/assets/main.png" alt="應用程式截圖" width="600" />
+  <img src=".github/assets/demo.gif" alt="Cloudflare R2 Image Uploader 操作示範" width="680" />
 </p>
 
-## 📖 完整教學與介紹文章
+## 📖 介紹文章
 
-如果你想知道如何從零開始利用 **Cloudflare R2** 架設免費的個人圖床（包含建立 R2 儲存桶、綁定自訂網域、申請 API Token 權限設定），以及開發這款 **R2 Image Uploader** 小工具的設計理念與完整使用教學，歡迎閱讀作者撰寫的部落格文章：
+如果你想知道如何從零開始利用 **Cloudflare R2** 架設免費的個人圖床，以及開發這款 **R2 Image Uploader** 小工具的設計理念與完整使用教學，歡迎閱讀我的部落格文章：
 
 - 📝 **[[Tech] Cloudflare R2 打造免費的個人圖床 + 自製圖片上傳壓縮小工具 R2 Image Uploader](https://blog.setsal.dev/build-free-image-hosting-cloudflare-r2/)**
 
@@ -56,6 +58,9 @@ npm run dev
 npm run build:win    # Windows
 npm run build:mac    # macOS
 npm run build:linux  # Linux
+
+# UI 更新後一鍵自動重新錄製展示 GIF、MP4 與截圖
+npm run demo:record
 ```
 
 ## 設定
